@@ -3,43 +3,43 @@ Option Compare Database
 Option Explicit
 
 Public Sub DumpStringBytes(ByVal psText As String)
-  Dim i           As Integer
+  Dim I           As Integer
   Dim abBytes()   As Byte
   Dim sOut        As String
   
   abBytes = psText
-  For i = 0 To UBound(abBytes) / 2
-    Debug.Print Format$(i + 1, "00000"); "|";
-  Next i
+  For I = 0 To UBound(abBytes) / 2
+    Debug.Print Format$(I + 1, "00000"); "|";
+  Next I
   Debug.Print
   
-  For i = 0 To UBound(abBytes)
-    Debug.Print Format$(i + 1, "00"); "|";
-  Next i
+  For I = 0 To UBound(abBytes)
+    Debug.Print Format$(I + 1, "00"); "|";
+  Next I
   Debug.Print
   
-  For i = 0 To UBound(abBytes)
+  For I = 0 To UBound(abBytes)
     Debug.Print "--+";
-  Next i
+  Next I
   Debug.Print
   
-  For i = 0 To UBound(abBytes)
-    sOut = Hex$(abBytes(i))
+  For I = 0 To UBound(abBytes)
+    sOut = Hex$(abBytes(I))
     If Len(sOut) < 2 Then sOut = " " & sOut
     Debug.Print sOut; "|";
-  Next i
+  Next I
   Debug.Print
   
-  For i = 0 To UBound(abBytes)
+  For I = 0 To UBound(abBytes)
     Debug.Print "--+";
-  Next i
+  Next I
   Debug.Print
     
-  For i = 0 To UBound(abBytes)
-    sOut = Chr$(abBytes(i))
+  For I = 0 To UBound(abBytes)
+    sOut = Chr$(abBytes(I))
     If Len(sOut) < 1 Then sOut = "?"
     Debug.Print sOut; " |";
-  Next i
+  Next I
   Debug.Print
     
 End Sub
@@ -89,21 +89,36 @@ Public Function ExistFile(psSpec As String) As Boolean
   ExistFile = (Err.Number = 0&)
 End Function
 
-'https://gist.github.com/ken-itakura/c35455bccbae1544189e37b713698b75
-Public Function MD5Hex(textString As String) As String
-  Dim enc
-  Dim textBytes() As Byte
-  Dim bytes
-  Dim outstr As String
-  Dim pos As Integer
-  
-  Set enc = CreateObject("System.Security.Cryptography.MD5CryptoServiceProvider")
-  textBytes = textString
-  bytes = enc.ComputeHash_2((textBytes))
+#If ACCEPT_CRASH_ONWIN64 Then
+  'https://gist.github.com/ken-itakura/c35455bccbae1544189e37b713698b75
+  Public Function MD5Hex(textString As String) As String
+    Dim enc
+    Dim textBytes() As Byte
+    Dim bytes
+    Dim outstr As String
+    Dim pos As Integer
     
-  For pos = 1 To LenB(bytes)
-    outstr = outstr & LCase(Right("0" & Hex(AscB(MidB(bytes, pos, 1))), 2))
-  Next
-  MD5Hex = outstr
-  Set enc = Nothing
-End Function
+    Set enc = CreateObject("System.Security.Cryptography.MD5CryptoServiceProvider")
+    textBytes = textString
+    bytes = enc.ComputeHash_2((textBytes))
+      
+    For pos = 1 To LenB(bytes)
+      outstr = outstr & LCase(Right("0" & Hex(AscB(MidB(bytes, pos, 1))), 2))
+    Next
+    MD5Hex = outstr
+    Set enc = Nothing
+  End Function
+#Else
+  'https://stackoverflow.com/questions/492523/calculating-md5-of-string-from-microsoft-access
+  Public Function MD5Hex(psTextString As String) As String
+    Dim sOutStr As String
+    Dim iPos    As Integer
+    
+    psTextString = MD5(psTextString)
+    For iPos = 1 To Len(psTextString)
+      sOutStr = sOutStr & LCase(Right("0" & Hex(AscB(Mid$(psTextString, iPos, 1))), 2))
+    Next
+    MD5Hex = sOutStr
+  End Function
+#End If
+

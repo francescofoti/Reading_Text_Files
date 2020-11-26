@@ -7,6 +7,7 @@ Private Const TEST_FILE1 As String = "c:\temp\textfiles\notepad_text.txt"
 ' Chaining all tests
 
 Public Sub TestAll()
+  InitMD5
   Test_ReadTextFileByLine
   Test_ReadTextFileByLine_BadIdea
   Test_ReadNotepadTextFileWithByteArray

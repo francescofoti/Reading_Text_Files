@@ -83,7 +83,7 @@ Private msLastErr   As String 'Just for UcNormalizeString()
 'Returns -1 if a conversion error (an invalid UTF8 sequence) is encountered.
 Private Function MBWCCalcDecodeBufferSize( _
   ByVal plCP As Long, _
-  ByVal plSrcMemoryAddress As Long, _
+  ByVal plSrcMemoryAddress As LongPtr, _
   ByVal plSrcMemoryByteSize As Long, _
   Optional ByVal plStart As Long = 0&, _
   Optional ByVal pfFailOnInvalidChars As Boolean = False) As Long
@@ -108,9 +108,9 @@ End Function
 'Wrap MultiByteToWideChar() so we can invoke it on a byte array or a string
 Private Function MBWCDecodeBuffer( _
   ByVal plCP As Long, _
-  ByVal plSrcMemoryAddress As Long, _
+  ByVal plSrcMemoryAddress As LongPtr, _
   ByVal plSrcMemoryByteSize As Long, _
-  ByVal plDstMemoryAddress As Long, _
+  ByVal plDstMemoryAddress As LongPtr, _
   ByVal plDstMemoryByteSize As Long, _
   Optional ByVal pfFailOnInvalidChars As Boolean = False) As Long
 
@@ -275,7 +275,7 @@ Public Function GetFileText( _
   Dim lStart      As Long
   Dim fIsOpen     As Boolean
   Dim fNoBOM      As Boolean
-  Dim i           As Long
+  Dim I           As Long
   Dim fLittEndian As Boolean
   
   On Error GoTo GetFileText_Err
@@ -319,13 +319,13 @@ Public Function GetFileText( _
         End If
         If Not fNoBOM Then
           'for files with BOM, we process the whole byte array ourselves
-          For i = lStart To (lLength - 1&) Step 2&
+          For I = lStart To (lLength - 1&) Step 2&
             If fLittEndian Then
-              sText = sText & ChrW$(abBytes(i) + (abBytes(i + 1) * 256))
+              sText = sText & ChrW$(abBytes(I) + (abBytes(I + 1) * 256))
             Else
-              sText = sText & ChrW$(abBytes(i) * 256 + abBytes(i + 1))
+              sText = sText & ChrW$(abBytes(I) * 256 + abBytes(I + 1))
             End If
-          Next i
+          Next I
         Else
           'We're in UTF16 LE/BE no BOM land here, who knows which one of the two.
           'Let VBA do whatever it can, from unicode to bytes and then bytes to string.
